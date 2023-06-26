@@ -7,7 +7,7 @@ tags: [training, inference]
 
 # A Practical Introduction to Amazon SageMaker Python SDK
 <figure>
-  <img src="SagemakerPythonSDK.png" alt="Sagemaker Preprocessing Container">
+  <img src="_img/SagemakerPythonSDK.png" alt="Sagemaker Preprocessing Container">
  </figure>
 
 ## Introduction
