@@ -3,7 +3,7 @@ title: A Practical Introduction to Amazon SageMaker Python SDK
 date: 2022-12-01 10:08:00 +0800
 categories: [MLOPS, SAGEMAKER]
 tags: [training, inference]
-img_path: /posts/_img
+img_path: ./_img
 ---
 
 # A Practical Introduction to Amazon SageMaker Python SDK
