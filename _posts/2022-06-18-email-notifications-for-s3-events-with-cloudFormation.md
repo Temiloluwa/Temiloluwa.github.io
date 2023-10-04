@@ -3,7 +3,10 @@ title: Email Notifications for S3 Events with CloudFormation
 date: 2022-06-18 10:08:00 +0100
 categories: [MLOPS, IAC]
 tags: [deployment]
-img_path: /assets/img/
+img_path: /assets/img/blog-headers
+image:
+  path: cloud-formation-s3.jpg
+  alt: Email notifications for s3 events with CloudFormation
 comments: true
 ---
 

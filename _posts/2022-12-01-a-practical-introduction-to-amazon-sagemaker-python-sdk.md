@@ -6,7 +6,7 @@ tags: [training, inference]
 img_path: /assets/img/blog-headers
 image:
   path: sagemaker-python-sdk.jpg
-  alt: sagemaker python sdk
+  alt: Sagemaker python sdk
 comments: true
 ---
 
