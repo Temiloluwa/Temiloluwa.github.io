@@ -12,31 +12,32 @@ comments: true
 
 ## Introduction
 
-The goal of this post is to share my experience with installing kubeflow on Amazon EKS in December 2023.
-EKS has to be first setup either using the AWS cli or the AWS console before installing Kubeflow
+The primary objective of this post is to recount my experience installing Kubeflow on Amazon EKS in December 2023. Before diving into the Kubeflow installation process, it is imperative to first set up EKS either through the AWS CLI or the AWS console. 
 
-There are two approaches Kubeflow installation approaches I explored: 
+There are two approaches Kubeflow installation approaches I explored are: 
   1. Using Juju by Canonical
   2. Using the Official guide by Amazon at [link](https://awslabs.github.io/kubeflow-manifests/)
 
+## Setting Up Your EKS Cluster
 
-## Setup of EKS Cluster
+To begin, the first step is to establish an EKS cluster. This can be accomplished either programmatically through the AWS CLI or using the AWS console.
+According to the official [documentation](https://v0-6.kubeflow.org/docs/started/k8s/overview/), Kubeflow mandates a minimum of 12GB of memory and 4 CPUs. Here are the configuration options for the nodes:
 
-First or all, we have to create an EKS cluster. This can be achieved programmatically using the aws cli or with the was console.
-Kubeflow requires a minimum of 12gb of memory and 4 Cpus per the official [documentation](https://v0-6.kubeflow.org/docs/started/k8s/overview/).
-Below are the configuration options for my nodes. 
-Kubeflow would create a minimum of 70 pods on the nodes. The t2.xlarge can support up to 44 pods therefore, a minimum of 2 nodes are needed.
-
-- kubernetes version: 1.25
-- minimum number of nodes: 2
-- instance type: t2.xlarge (16gb RAM, 4 CPUs)
+- Kubernetes version: 1.25
+- Minimum number of nodes: 2
+- Instance type: t2.xlarge (16GB RAM, 4 CPUs)
 - AMI: Amazon Linux 2
-- EBS: 100gb gp3
+- EBS: 100GB gp3
 
-### Things to Note
-1. Creating an EKS Cluster using the AWS console is a two-step process: first you create the cluster which takes about 20 minutes to complete, then you add a node group to the cluster.
+Kubeflow, upon deployment, will generate a minimum of 70 pods on these nodes. Considering that the t2.xlarge instance type can support up to 44 pods, a minimum of 2 nodes becomes a requirement.
 
-2. You need a (Cluster Service Role)[https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html#create-service-role] to create a cluster and a (Node IAM role)[https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html] to create a node group.
+### Important Configuration Details
+1. Creating an EKS Cluster:
+Creating an EKS Cluster using the AWS console involves a two-step process. First, you create the cluster, which takes approximately 20 minutes to complete. Subsequently, you add a node group to the cluster.
+
+2. Roles Requirement:
+To accomplish these tasks, you'll need a (Cluster Service Role)[https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html#create-service-role] for cluster creation and a (Node IAM role)[https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html] for node group creation. Ensure these roles are configured correctly to facilitate the setup process
+
 ### Installation EBS Addon
 
 ### Install eksctl, kubectl and K9s
