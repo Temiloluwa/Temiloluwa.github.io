@@ -14,13 +14,12 @@ comments: true
 
 The primary objective of this post is to recount my experience installing Kubeflow on Amazon EKS in December 2023. Before diving into the Kubeflow installation process, it is imperative to first set up EKS either through the AWS CLI or the AWS console. 
 
-There are two approaches Kubeflow installation approaches I explored are: 
+There are two Kubeflow installation approaches I explored: 
   1. Using Juju by Canonical
   2. Using the Official guide by Amazon at [link](https://awslabs.github.io/kubeflow-manifests/)
 
 ## Setting Up Your EKS Cluster
 
-To begin, the first step is to establish an EKS cluster. This can be accomplished either programmatically through the AWS CLI or using the AWS console.
 According to the official [documentation](https://v0-6.kubeflow.org/docs/started/k8s/overview/), Kubeflow mandates a minimum of 12GB of memory and 4 CPUs. Here are the configuration options for the nodes:
 
 - Kubernetes version: 1.25
@@ -31,16 +30,33 @@ According to the official [documentation](https://v0-6.kubeflow.org/docs/started
 
 Kubeflow, upon deployment, will generate a minimum of 70 pods on these nodes. Considering that the t2.xlarge instance type can support up to 44 pods, a minimum of 2 nodes becomes a requirement.
 
-### Important Configuration Details
+### Important EKS Configuration Details
 1. Creating an EKS Cluster:
 Creating an EKS Cluster using the AWS console involves a two-step process. First, you create the cluster, which takes approximately 20 minutes to complete. Subsequently, you add a node group to the cluster.
 
 2. Roles Requirement:
 To accomplish these tasks, you'll need a (Cluster Service Role)[https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html#create-service-role] for cluster creation and a (Node IAM role)[https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html] for node group creation. Ensure these roles are configured correctly to facilitate the setup process
 
-### Installation EBS Addon
+### Installation Amazon EBS CSI driver Addon
 
-### Install eksctl, kubectl and K9s
+EKS comes with four (Addons)[https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html] installed by default but Amazon EBS CSI driver has to be installed for (dynammic provisioning of persistent volumes)[https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/]. 
+Kubeflow has components like a Mysql database that would require persistent volumes to be provisioned. 
+To install the Amazon EBS CSI driver:
+
+1. Create an IAM role according to the (guide)[https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html]
+2. Install the Addon on the Nodegroup using the (AWS Console or AWSCLI)[https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html#adding-ebs-csi-eks-add-on]
+
+### Install Eksctl, Kubectl and K9s
+Eksctl, Kubectl and K9s are command line tools for interacting with your EKS cluster.
+(Eksctl)[https://eksctl.io/] is the offical cli tool by AWS but I personally prefer using Kubectl and K9s.
+K9s provides a GUI-like interface in the command line.
+To permit Kubectl and K9s to detect the presence of your EKS cluster, the kubeconfig file must be updated with the cluster configuration.
+Run the following awscli command to achieve this:
+
+``` bash
+# update kubeconfig file with cluster configuration
+aws eks update-kubeconfig --region <region-code> --name <my-cluster>
+```
 
 ## Installation of Kubeflow with Juju by Canonical
 
