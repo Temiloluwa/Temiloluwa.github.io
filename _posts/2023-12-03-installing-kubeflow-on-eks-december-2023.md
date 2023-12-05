@@ -22,11 +22,11 @@ There are two Kubeflow installation approaches I explored:
 
 According to the official [documentation](https://v0-6.kubeflow.org/docs/started/k8s/overview/), Kubeflow mandates a minimum of 12GB of memory and 4 CPUs. Here are the configuration options for the nodes:
 
-- Kubernetes version: 1.25
-- Minimum number of nodes: 2
-- Instance type: t2.xlarge (16GB RAM, 4 CPUs)
-- AMI: Amazon Linux 2
-- EBS: 100GB gp3
+- **Kubernetes version**: 1.25
+- **Minimum number of nodes**: 2
+- **Instance type**: t2.xlarge (16GB RAM, 4 CPUs)
+- **AMI**: Amazon Linux 2
+- **EBS**: 100GB gp3
 
 Kubeflow, upon deployment, will generate a minimum of 70 pods on these nodes. Considering that the t2.xlarge instance type can support up to 44 pods, a minimum of 2 nodes becomes a requirement.
 
@@ -37,17 +37,17 @@ Creating an EKS Cluster using the AWS console involves a two-step process. First
 2. **Roles Requirement**:
 To accomplish these tasks, you'll need [Cluster Service Role](https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html#create-service-role) for cluster creation and a [Node IAM role](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html) for node group creation. Ensure these roles are configured correctly to facilitate the setup process
 
-#### Installation Amazon EBS CSI driver Addon
+#### Persistent Volumes with the  Amazon EBS CSI driver Addon
 
-EKS comes with four [Addons](https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html) installed by default but Amazon EBS CSI driver has to be installed for [dynammic provisioning of persistent volumes](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/). 
-Kubeflow has components like a Mysql database that would require persistent volumes to be provisioned. 
+As soon as the cluster and nodes are ready, an Amazon EBS CSI driver addon has to be installed for [dynamic provisioning of persistent volumes](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/). Kubeflow uses the addon to provision persistent volumes for pods like Mysql and Notebook servers. EKS comes with four [Addons](https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html) by default and I wonder why this important addon is not one of them. 
+. 
 To install the Amazon EBS CSI driver:
 
 1. Create an IAM role according to the [guide](https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html)
 2. Install the Addon on the Nodegroup using the [AWS Console or AWSCLI](https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html#adding-ebs-csi-eks-add-on)
 
-#### Installation of Eksctl, Kubectl and K9s
-Eksctl, Kubectl and K9s are command line tools for interacting with your EKS cluster.
+#### Interacting with EKS with Eksctl, Kubectl and K9s
+These command lines tools are recommended for interacting with your EKS cluster: Eksctl, Kubectl and K9s.
 [Eksctl](https://eksctl.io/) is the offical cli tool by AWS but I personally prefer using Kubectl and K9s.
 K9s provides a GUI-like interface in the command line.
 To permit Kubectl and K9s to detect the presence of your EKS cluster, the kubeconfig file must be updated with the cluster configuration.
@@ -62,17 +62,19 @@ aws eks update-kubeconfig --region <region-code> --name <my-cluster>
 **An EKS Cluster must have been setup before you proceed** <br>
 **Dependencies for this method**: Juju
 
-If you've worked with IAC tools like Terraform or Cloudformation, then understanding how Juju works is straightforward.
-Juju is an open source orchestration engine for deploying and configuring applications on on-premise and Cloud environments.
-Juju charms are artifacts that encapsulate the deployment details of applications for example, wordpress, mysql, and for our use case, Kubeflow.
+Juju is an open source orchestration engine for deploying infrastructure and configuring applications on on-premise and Cloud environments.
+It is not only an IAC tool like Terraform, but also installs applications like Wordpress and Kubeflow, with a single command.
+Juju charms are artifacts that encapsulate the deployment and configuration details of applications.
 Visit the [Charm Hub](https://charmhub.io/) to see the comprehensive list of available charms.
 
-To install the Kubeflow charm, we need a Controller. A controller could be installed on seperated EC2 instance or a pod in our target Kubernetes cluster.
-The controller as the name implies, oversees the deployment of the charm.
+To install the Kubeflow charm, we need a Controller. 
+A controller in Juju oversees the deployment of a charm and it could be installed on seperate EC2 instance or a pod in our target Kubernetes cluster.
+These are the steps for deploying Kubeflow with Juju
+
 
 ### Step 1: Install juju on your local machine
 
-These are the commands to install juju on either mac or linux machine.
+Install the juju cli on either a mac or linux machine.
 
 ``` bash
   # mac
@@ -83,16 +85,15 @@ These are the commands to install juju on either mac or linux machine.
 ```
 
 ### Step 2: Add your AWS Programmatic credentials 
-If you don't have programmtic credentials to your aws account, run `aws configure`.
-Afterward, add this credentials to your juju local setup by running the command below and following the interactive prompt.
+Add your AWS credentials to Juju. Configure programmatic access to your AWS account using `aws configure` if you lack access.
 
 ``` bash
 juju add-credential aws   
 ```
 
 ### Step 3: Create your Juju controller
-We are creating a controller in the Kubernetes controller as pod in our cluster.
-You could opt for an EC2 controller but that would create a "M type" instance by default resulting in unnecessary costs.
+I chose to create a Kubernetes controller as pod in the cluster.
+If an EC2 controller is desired, an "M type" instance is created by default by Juju.
 
 ``` bash
 # ec2 controller
@@ -121,7 +122,7 @@ juju deploy kubeflow --channel 1.7/stable  --trust
 
 ### Configuring Dex and OIDC to Login to Kubeflow Dashboard
 The installation progress can be monitored in the terminal while the status of the created pods is best visualized using **K9s**.
-Once all the pods are ready, **Dex** and **OIDC** can be configured with the commands below to enable access to the Kubeflow Dashboard.
+Once all the pods are ready, **Dex** and **OIDC** must be configured with the commands below to access to the Kubeflow Dashboard.
 
 Juju creates two LoadBalancers upon Kubeflow deployment, one for ingress with **Istio** the other for the **Kubernetes Controller**.
 Login to the dashboard with the **Istio Ingress Gateway*** pod service url or its Load Balancer url retrieved from the Amazon web console.
