@@ -145,9 +145,9 @@ The default user email address is user@example.com and the default password is 1
 **An EKS Cluster must have been setup before you proceed** <br>
 **Dependencies for this method**: Make, Python3.8 and Kustomize
 
-
-The prequisites section of the AWS Kubeflow offical documentation provides three options for creating an ubuntu environment in order to deploy Kubeflow.
-Any option would work fine, but I decided to use my local machine and perform the following:
+The prequisites section of the AWS Kubeflow offical documentation offers three options for creating an ubuntu environment in order to deploy Kubeflow.
+Any option works fine, but I decided instead to execute the installation from my local machine.
+These are the important prequisites:
 
 1. Clone the official [AWS labs Kubeflow manifest repository](https://awslabs.github.io/kubeflow-manifests/docs/deployment/prerequisites/)
 2. Install a **python 3.8** environment using [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/). The choice of python 3.8 is very crucial. Miniconda offers the ability to select a desired python version for an environment. 
@@ -155,9 +155,9 @@ Any option would work fine, but I decided to use my local machine and perform th
 
 
 ## Installation with Kubeflow Manifests
-The cloned repository contains a **Makefile** at the root directory. Thefore, **Make** must be installed on your system in order to run its commands. I chose not execute the **make install-tools** commands as stated in the documentation as it installs some of the dependencies like python and kubectl which I had previously installed.
+The cloned repository contains a **Makefile** at the root directory. Therefore, **Make** must be installed on your system in order to run its commands. I chose not execute the `make install-tools` command as stated in the documentation as it installs dependencies like python and kubectl which I had previously installed.
 
-The documentation offers two Kubeflow deployment methods with either **Terraform** or **Manifests**. Terraform would have been installed with the **make install-tools** command but I opted for using Manifests. The manifests method invovles executing a python script that executes systematic shell commands using **kustomize** deploy Kubeflow. The script can be found at **tests/e2e/utils/kubeflow_installation.py**. 
+The documentation recommends two Kubeflow deployment methods as soon as the prequisites are fulfilled: with either **Terraform** or **Manifests**. Terraform would have been installed with the `make install-tools` command but I opted for using Manifests. The manifests method runs a python script that executes shell commands using **kustomize** to deploy Kubeflow. The script can be found at `tests/e2e/utils/kubeflow_installation.py`. 
 
 ``` yaml
 # conda environment yaml file
@@ -181,8 +181,8 @@ dependencies:
     - retrying==1.3.4
 ```
 
-In preparation for the deployment, I installed kustomize and the python libraries in the yaml above into my python environment. 
-Next, I exported my desired deployment and installation options as environmental variables and ran **make deploy-kubeflow***  
+In preparation for the deployment, the python libraries in the yaml above must be installed into python environment. 
+Finally, the deployment is implemented using `make deploy-kubeflow`
 
 ``` bash
   # set environmental variables for vanilla deployment
@@ -192,7 +192,7 @@ Next, I exported my desired deployment and installation options as environmental
   # install kubeflow using the python script at tests/e2e/utils/kubeflow_installation.py
   make deploy-kubeflow
 ```
-The installation progress can be monitored in the terminal and with K9s.
+The installation progress can be monitored in the terminal.
 Once all the pods are ready, port forward the Istio ingress gateway pod on your local port 8085 to access the Kubeflow dashboard.
 The default user email address is user@example.com and the default password is 12341234.
 
@@ -201,5 +201,6 @@ kubectl port-forward svc/istio-ingressgateway -n istio-system 8085:80
 
 ```
 
-
 ## Comparision of both Kubeflow Deployment Methods.
+From a cost perspective, the official AWS installation method is recommended. No Load balancers are created by default and there is no need for controllers like with Juju.
+On the other hand, once Juju is setup, the installation and maintenance of Kubeflow is easier to implement with Juju.
